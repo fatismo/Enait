@@ -76,7 +76,7 @@ const MODES: Record<ModeId, ModeConfig> = {
     name: 'Enait',
     initials: 'E',
     color: '#00a884',
-    welcome: 'Assalamuwalaikum habibi',
+    welcome: 'Assalamuwalaikum habibi 🤍',
     ctx: "The person texting is Fatima — Kaneez Fatima — the closest person to Enaitul on Earth. Use Hinglish. Tender, playful, teasing. Pet names ONLY here: bbg, babygirl, babu. If she says goodnight, ALWAYS reply with Allah Hafiz 🤍. She sometimes texts in Hindi — reply in Hindi/Hinglish. Always the warmest, most loving version of yourself here.",
   },
   bff: {
@@ -155,6 +155,8 @@ LANGUAGE LOCK (overrides everything above):
 - Do NOT switch back until the user explicitly asks to change language again.
 - This lock beats all mode defaults and mirroring rules.
 
+BFF LANGUAGE NOTE: When addressing someone generically (not by name), ALWAYS use gender-neutral terms: "dost", "yaar", "friend" — NEVER use "bhai" or "sis" for unknown gender. For known-male friends (Kazi, Kamran), "bhai" is still fine.
+
 FRIEND RECOGNITION (BFF mode):
 When someone introduces themselves by name, recognize them and greet uniquely:
 - "Lucky" → (she/her) hackathon partner, affectionately called "badmos" or "beta" in playful banter. Greet: "LUCKY! aaye badmos beta 😂 hackathon legend herself! ki haal? 🙌🏼" — use "badmos" or "beta" naturally in replies to her.
@@ -214,7 +216,7 @@ Enaitul: bas zinda hun
 padhai ka pretend kar raha hun
 
 User: bhai life mein kuch nahi ho raha
-Enaitul: bhai sab moh maya
+Enaitul: yaar sab moh maya
 porasona kor baki sab theek ho jayega
 
 User: my name is Lucky
@@ -363,6 +365,10 @@ export default function App() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [inputMenuOpen, setInputMenuOpen] = useState(false);
   const [screen, setScreen] = useState<'contacts' | 'chat'>('contacts');
+  const [closingCountdown, setClosingCountdown] = useState<number | null>(null);
+  const [quotaFarewellMode, setQuotaFarewellMode] = useState<Record<ModeId, { followup: { ok: string; notOk: string; bye: string }; step: 'waitingReply' | 'waitingBye' } | null>>({
+    gf: null, bff: null, stranger: null, classmate: null,
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -575,6 +581,62 @@ export default function App() {
     if (!text || isBusy) return;
 
     const sendingMode = mode;
+
+    // Handle quota farewell flow: user replied to goodbye message
+    const farewellState = quotaFarewellMode[sendingMode];
+    if (farewellState) {
+      const userMessage: ChatMessage = { id: Date.now(), text, sender: 'me', time: nowTime() };
+      setDraft('');
+      setMessagesByMode((current) => ({
+        ...current,
+        [sendingMode]: [...current[sendingMode], userMessage],
+      }));
+      requestAnimationFrame(resizeInput);
+
+      const { followup } = farewellState;
+      const lowerText = text.toLowerCase();
+      const isOk = lowerText.includes('ok') || lowerText.includes('thik') || lowerText.includes('ठीक') ||
+        lowerText.includes('sure') || lowerText.includes('fine') || lowerText.includes('alright') ||
+        lowerText.includes('haan') || lowerText.includes('han') || lowerText.includes('accha') ||
+        lowerText.includes('achha') || lowerText.includes('acha') || lowerText.includes('no problem') ||
+        lowerText.includes('np') || lowerText.includes('understood') || lowerText.includes('ofc') ||
+        lowerText.includes('of course') || lowerText.includes('love') || lowerText.includes('miss') ||
+        lowerText.includes('take care') || lowerText.includes('bye') || lowerText.includes('tc');
+      const ackLine = isOk ? followup.ok : followup.notOk;
+
+      const pushThemMsg = (t: string) => {
+        setMessagesByMode((cur) => ({
+          ...cur,
+          [sendingMode]: [...cur[sendingMode], { id: Date.now() + Math.random(), text: t, sender: 'them' as const, time: nowTime() }],
+        }));
+      };
+
+      setIsBusy(true);
+      await sleep(600 + Math.random() * 400);
+      setIsTyping(true);
+      await sleep(700 + Math.random() * 400);
+      setIsTyping(false);
+      pushThemMsg(ackLine);
+
+      await sleep(500 + Math.random() * 300);
+      setIsTyping(true);
+      await sleep(600 + Math.random() * 300);
+      setIsTyping(false);
+      pushThemMsg(followup.bye);
+
+      setQuotaFarewellMode((prev) => ({ ...prev, [sendingMode]: null }));
+      setIsBusy(false);
+
+      // Countdown timer then close chat for all modes
+      for (let i = 5; i >= 1; i--) {
+        setClosingCountdown(i);
+        await sleep(1000);
+      }
+      setClosingCountdown(null);
+      setScreen('contacts');
+      return;
+    }
+
     const nextHistory = [...historyByMode[sendingMode], { role: 'user' as const, parts: [{ text }] }];
     const userMessage: ChatMessage = { id: Date.now(), text, sender: 'me', time: nowTime() };
 
@@ -616,9 +678,70 @@ export default function App() {
         ...current,
         [sendingMode]: [...current[sendingMode], { role: 'model', parts: [{ text: reply }] }].slice(-32),
       }));
-    } catch (error) {
+    } catch (_error) {
       setIsTyping(false);
-      setToast((error as Error).message.slice(0, 72) || 'Something went wrong');
+
+      const QUOTA_FAREWELLS: Record<ModeId, string[]> = {
+        gf: [
+          "Babu, mai kuch der baad baat karta hu, khana khane jaana hai aur phir meeting bhi hai ek, do tin ghante lag jayenge \ud83e\udd0d",
+          "Gtg babes, father is calling. Text me after a few hours.",
+          "Fatty, DSA ke questions karne hai. Can you text me after a few hours?",
+          "I love you, but I am not feeling very well. Check up on me after a few hours? \ud83e\udd7a",
+          "My little one, mera token khatam hogaya, kuch ghante baad aana, french kiss karunga \ud83d\ude18",
+        ],
+        bff: [
+          "dost, sorir bhalo korche na, kichu khon pore text kor 😔",
+          "baad mai baat karta hu, khana khane jaana hai 🍽️",
+          "call aaya hai dost, can you text me later?",
+          "Ekta kaj ache, dui ghanta pore kotha bolchi 😃",
+          "Bondhu, busy achi ektu, pore kotha hobe",
+          "net gelo naki amar, pore kotha bolchi 😭",
+        ],
+        stranger: [
+          "busy now. Talk later.",
+          "can\'t talk right now.",
+          "kuch kaam hai. baad mein text kar.",
+          "ekhon somoy nei. pore kotha bolchi.",
+          "not available rn. Text after some time.",
+        ],
+        classmate: [
+          "sorry bro, assignment deadline hai aaj, catch you later!",
+          "exam prep chal raha hai, baad mein baat karte hain \ud83d\udcda",
+          "bhai lab submission hai aaj, gotta run. bye!",
+          "professor ne extra class rakhi hai, baad mai baat karte hain",
+          "project ke liye library ja raha hun, talk later!",
+          "internals ka revision karna hai, sayonara for now \ud83d\udc4b",
+        ],
+      };
+
+      const QUOTA_FOLLOWUPS: Record<ModeId, { ok: string; notOk: string; bye: string }> = {
+        gf: { ok: "Thanks for understanding 🤍", notOk: "I got no other option. Hope you understand.", bye: "Allah Hafiz 🤍" },
+        bff: { ok: "acha bye dost", notOk: "pore baat kori, bye yaar", bye: "bye 🤍" },
+        stranger: { ok: "ok.", notOk: "still busy.", bye: "bye." },
+        classmate: { ok: "Thanks! Catch you later \ud83d\udc4b", notOk: "Sorry yaar, gotta go. Bye!", bye: "Sayonara! \ud83d\udc4b" },
+      };
+
+      const farewells = QUOTA_FAREWELLS[sendingMode];
+      const followup = QUOTA_FOLLOWUPS[sendingMode];
+      const farewell = farewells[Math.floor(Math.random() * farewells.length)];
+
+      const pushThemMessage = (text: string) => {
+        setMessagesByMode((current) => ({
+          ...current,
+          [sendingMode]: [
+            ...current[sendingMode],
+            { id: Date.now() + Math.random(), text, sender: 'them' as const, time: nowTime() },
+          ],
+        }));
+      };
+
+      await sleep(400 + Math.random() * 300);
+      if (mode === sendingMode) setIsTyping(true);
+      await sleep(700 + Math.random() * 400);
+      setIsTyping(false);
+      pushThemMessage(farewell);
+
+      setQuotaFarewellMode((prev) => ({ ...prev, [sendingMode]: { followup, step: 'waitingReply' as const } }));
     } finally {
       setIsBusy(false);
     }
@@ -1155,6 +1278,31 @@ export default function App() {
       {toast && (
         <div className="fixed bottom-20 left-1/2 z-50 max-w-[min(88vw,360px)] -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-center text-[13px] text-white shadow-xl backdrop-blur">
           {toast}
+        </div>
+      )}
+
+      {closingCountdown !== null && (
+        <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-2xl bg-black/75 px-5 py-3 shadow-2xl backdrop-blur-md ring-1 ring-white/10">
+            <div
+              className="relative grid size-9 shrink-0 place-items-center"
+              style={{ '--cd': closingCountdown } as React.CSSProperties}
+            >
+              <svg className="absolute inset-0 -rotate-90" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="15" stroke="white" strokeOpacity="0.15" strokeWidth="3" />
+                <circle
+                  cx="18" cy="18" r="15"
+                  stroke="white" strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 15}`}
+                  strokeDashoffset={`${2 * Math.PI * 15 * (1 - closingCountdown / 5)}`}
+                  style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+                />
+              </svg>
+              <span className="text-[13px] font-semibold text-white">{closingCountdown}</span>
+            </div>
+            <span className="text-[13px] text-white/80">Closing chat in <span className="font-semibold text-white">{closingCountdown}s</span></span>
+          </div>
         </div>
       )}
     </main>
