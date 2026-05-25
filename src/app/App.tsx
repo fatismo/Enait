@@ -54,13 +54,18 @@ const OPENROUTER_MODEL = ENV.VITE_OPENROUTER_MODEL || 'google/gemma-3-27b-it:fre
 const HUGGINGFACE_MODEL = ENV.VITE_HUGGINGFACE_MODEL || 'openai/gpt-oss-120b:fastest';
 const GF_PASSWORD_HASH = 'ec8f080892b11273376db13a4f4d61f8662d0cf95e916ca0cd18b49a0bc300cd';
 
+import enaitImg from '../../Images/Enait.png';
+import enaitulImg from '../../Images/Enaitul.png';
+import mdEnaitulImg from '../../Images/Md Enaitul Hoque.png';
+import enaitCseImg from '../../Images/Enait CSE.png';
+
 // Add display pictures here. Use imported images, public URLs, or data:image base64 strings.
 // Example: gf: '/fatima.jpg' if the image is in Chat bot/public/fatima.jpg
 const DP_IMAGES: Partial<Record<ModeId, string>> = {
-  gf: 'Images/Enait.png',
-  bff: 'Images/Enaitul.png',
-  stranger: 'Images/Md Enaitul Hoque.png',
-  classmate: 'Images/Enait CSE.png',
+  gf: enaitImg,
+  bff: enaitulImg,
+  stranger: mdEnaitulImg,
+  classmate: enaitCseImg,
 };
 
 const MODES: Record<ModeId, ModeConfig> = {
