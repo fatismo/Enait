@@ -8,7 +8,6 @@ import {
   Moon,
   MoreVertical,
   Paperclip,
-  Search,
   Send,
   Smile,
   Sun,
@@ -814,14 +813,19 @@ export default function App() {
               </div>
             </div>
 
-            {/* Search bar */}
+            {/* Status line */}
             <div
-              className={`mb-3 flex items-center gap-2.5 rounded-full px-3.5 py-2.5 ${
-                isLight ? 'bg-white/20' : 'bg-white/10'
+              className={`mb-3 flex items-center gap-2.5 rounded-full px-3.5 py-2.5 backdrop-blur-md ring-1 ${
+                isLight ? 'bg-white/20 ring-white/30' : 'bg-white/10 ring-white/15'
               }`}
             >
-              <Search className="size-4 shrink-0 text-white/60" strokeWidth={2.2} />
-              <span className="text-[15px] text-white/50">Search</span>
+              <span className="relative flex size-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+              </span>
+              <span className="text-[14px] text-white/70">
+                Enaitul is online · <span className="text-white/90 font-medium">4 modes available</span>
+              </span>
             </div>
           </header>
 
@@ -891,6 +895,30 @@ export default function App() {
 
             {/* Footer */}
             <div className={`pb-8 pt-2 text-center text-[12px] ${isLight ? 'text-[#8696a0]' : 'text-[#667781]'}`}>
+              <div className="flex justify-center gap-2.5 mb-4">
+                <a
+                  href="https://enait-portfolio2.vercel.app/#portfolio"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-medium backdrop-blur-md ring-1 transition hover:scale-[1.03] active:scale-95 ${
+                    isLight
+                      ? 'bg-black/5 ring-black/10 text-[#54656f] hover:bg-black/10'
+                      : 'bg-white/10 ring-white/15 text-[#aebac1] hover:bg-white/15'
+                  }`}
+                >
+                  My Projects
+                </a>
+                <button
+                  onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSdOXbSD4YQMmscuQliFIldNvxayUxxbFO_0OSZkCY42IBc2Gw/viewform?usp=publish-editor', '_blank')}
+                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-medium backdrop-blur-md ring-1 transition hover:scale-[1.03] active:scale-95 ${
+                    isLight
+                      ? 'bg-black/5 ring-black/10 text-[#54656f] hover:bg-black/10'
+                      : 'bg-white/10 ring-white/15 text-[#aebac1] hover:bg-white/15'
+                  }`}
+                >
+                  Feedback
+                </button>
+              </div>
               &copy; Made by Md Enaitul Hoque | 2026
             </div>
           </div>
