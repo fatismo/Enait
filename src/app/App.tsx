@@ -370,6 +370,7 @@ export default function App() {
   const [quotaFarewellMode, setQuotaFarewellMode] = useState<Record<ModeId, { followup: { ok: string; notOk: string; bye: string }; step: 'waitingReply' | 'waitingBye' } | null>>({
     gf: null, bff: null, stranger: null, classmate: null,
   });
+  const [aiOnline, setAiOnline] = useState<boolean | null>(null); // null = checking
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -392,6 +393,20 @@ export default function App() {
     const timer = window.setTimeout(() => setToast(''), 2600);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  // Silent background health-check on mount to determine if AI is reachable
+  useEffect(() => {
+    const probe = async () => {
+      try {
+        await callAiWithFallback([{ role: 'user', parts: [{ text: 'hi' }] }], 'bff');
+        setAiOnline(true);
+      } catch {
+        setAiOnline(false);
+      }
+    };
+    void probe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const resizeInput = () => {
     const input = inputRef.current;
@@ -681,6 +696,7 @@ export default function App() {
       }));
     } catch (_error) {
       setIsTyping(false);
+      setAiOnline(false);
 
       const QUOTA_FAREWELLS: Record<ModeId, string[]> = {
         gf: [
@@ -820,11 +836,24 @@ export default function App() {
               }`}
             >
               <span className="relative flex size-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+                {aiOnline === false ? (
+                  <span className="relative inline-flex size-2 rounded-full bg-red-400" />
+                ) : aiOnline === null ? (
+                  <span className="relative inline-flex size-2 rounded-full bg-yellow-400 animate-pulse" />
+                ) : (
+                  <>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+                  </>
+                )}
               </span>
               <span className="text-[14px] text-white/70">
-                Enaitul is online · <span className="text-white/90 font-medium">4 modes available</span>
+                {aiOnline === false
+                  ? <><span className="text-red-300 font-medium">Enaitul is offline</span> · AI unavailable</>
+                  : aiOnline === null
+                    ? <>Connecting…</>
+                    : <>Enaitul is online · <span className="text-white/90 font-medium">4 modes available</span></>
+                }
               </span>
             </div>
           </header>
