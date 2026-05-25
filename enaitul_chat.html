@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Enaitul — WhatsApp</title>
+<style>
+/* ══ RESET ══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* ══ VARIABLES — LIGHT MODE ══ */
+:root {
+  --wa-bg:          #efeae2;
+  --wa-header:      #008069;
+  --wa-header-txt:  #ffffff;
+  --wa-header-sub:  rgba(255,255,255,0.82);
+  --wa-header-icon: rgba(255,255,255,0.88);
+  --wa-bubble-out:  #d9fdd3;
+  --wa-bubble-out-txt: #111b21;
+  --wa-bubble-in:   #ffffff;
+  --wa-bubble-in-txt: #111b21;
+  --wa-input-bg:    #ffffff;
+  --wa-bar-bg:      #f0f2f5;
+  --wa-bar-icon:    #54656f;
+  --wa-tick-blue:   #53bdeb;
+  --wa-tick-grey:   #8696a0;
+  --wa-time:        #667781;
+  --wa-shadow:      rgba(0,0,0,0.08);
+  --wa-border:      rgba(0,0,0,0.06);
+  --wa-date-bg:     rgba(255,255,255,0.85);
+  --wa-date-txt:    #667781;
+  --dd-bg:          #ffffff;
+  --dd-item:        #111b21;
+  --dd-sub:         #667781;
+  --dd-hover:       #f5f6f6;
+  --dd-active-bg:   #e8f5e9;
+  --dd-active:      #008069;
+  --dd-border:      #f0f0f0;
+  --dd-check:       #25d366;
+  --toast-bg:       rgba(40,40,40,0.92);
+  --toast-txt:      #fff;
+  --phone-font: 'Segoe UI', Helvetica, Arial, -apple-system, sans-serif;
+  --accent: #00a884;
+  --header-h: 58px;
+}
+
+/* ══ DARK MODE ══ */
+body.dark {
+  --wa-bg:          #0b141a;
+  --wa-header:      #202c33;
+  --wa-header-txt:  #e9edef;
+  --wa-header-sub:  #8696a0;
+  --wa-header-icon: #aebac1;
+  --wa-bubble-out:  #005c4b;
+  --wa-bubble-out-txt: #e9edef;
+  --wa-bubble-in:   #202c33;
+  --wa-bubble-in-txt: #e9edef;
+  --wa-input-bg:    #2a3942;
+  --wa-bar-bg:      #202c33;
+  --wa-bar-icon:    #aebac1;
+  --wa-tick-blue:   #53bdeb;
+  --wa-tick-grey:   #8696a0;
+  --wa-time:        #8696a0;
+  --wa-shadow:      rgba(0,0,0,0.35);
+  --wa-border:      rgba(255,255,255,0.06);
+  --wa-date-bg:     rgba(11,20,26,0.78);
+  --wa-date-txt:    #8696a0;
+  --dd-bg:          #233138;
+  --dd-item:        #e9edef;
+  --dd-sub:         #8696a0;
+  --dd-hover:       #182229;
+  --dd-active-bg:   rgba(0,168,132,0.12);
+  --dd-active:      #00a884;
+  --dd-border:      rgba(255,255,255,0.06);
+  --dd-check:       #00a884;
+  --toast-bg:       rgba(32,44,51,0.95);
+  --toast-txt:      #e9edef;
+}
+
+/* ══ BASE ══ */
+html, body {
+  height: 100%; height: 100dvh;
+  background: #111b21;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--phone-font);
+  overflow: hidden;
+  transition: background 0.25s;
+}
+
+/* ══ PHONE SHELL ══ */
+.phone {
+  width: 100vw; height: 100dvh;
+  background: var(--wa-bg);
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  transition: background 0.25s;
+}
+@media (min-width: 520px) {
+  .phone {
+    width: 420px; height: min(900px, 92dvh);
+    border-radius: 38px;
+    box-shadow: 0 0 0 9px #1a1a1a, 0 0 0 11px #2a2a2a, 0 32px 90px rgba(0,0,0,0.8);
+  }
+}
+@media (min-width: 768px) {
+  .phone { height: min(860px, 90dvh); }
+}
+
+/* ══ STATUS BAR ══ */
+.status-bar {
+  background: var(--wa-header);
+  height: 26px; display: none;
+  align-items: center; justify-content: space-between;
+  padding: 0 18px 0 16px; flex-shrink: 0;
+  transition: background 0.25s;
+}
+@media (min-width: 520px) { .status-bar { display: flex; } }
+.sb-time { color: var(--wa-header-txt); font-size: 12px; font-weight: 600; letter-spacing: 0.2px; }
+.sb-icons { display: flex; align-items: center; gap: 5px; }
+.sb-icons svg { width: 14px; height: 14px; fill: var(--wa-header-txt); }
+
+/* ══ HEADER ══ */
+.wa-header {
+  height: var(--header-h);
+  background: var(--wa-header);
+  display: flex; align-items: center;
+  padding: 0 4px 0 0;
+  flex-shrink: 0; z-index: 20;
+  transition: background 0.25s;
+}
+
+.back-btn {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--wa-header-txt); flex-shrink: 0;
+  border-radius: 50%;
+}
+.back-btn svg { width: 22px; height: 22px; fill: var(--wa-header-txt); }
+
+.header-dp {
+  width: 40px; height: 40px;
+  border-radius: 50%; object-fit: cover;
+  background: #b0bec5; display: block; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  cursor: pointer; transition: transform 0.15s;
+}
+.header-dp:active { transform: scale(0.94); }
+
+/* ── Name area + dropdown ── */
+.header-name-wrap {
+  flex: 1; min-width: 0; padding-left: 10px;
+  cursor: pointer; position: relative;
+  user-select: none;
+}
+
+.header-name {
+  font-size: 16px; font-weight: 600;
+  color: var(--wa-header-txt);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.25;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.name-chevron {
+  display: inline-flex; align-items: center;
+  transition: transform 0.22s cubic-bezier(.4,0,.2,1);
+  opacity: 0.75; flex-shrink: 0;
+}
+.name-chevron svg { width: 14px; height: 14px; fill: var(--wa-header-txt); }
+.header-name-wrap.open .name-chevron { transform: rotate(180deg); }
+
+.header-sub {
+  font-size: 12.5px; color: var(--wa-header-sub);
+  margin-top: 1px; white-space: nowrap;
+}
+
+/* ── DROPDOWN ── */
+.mode-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: -54px;
+  background: var(--dd-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
+  overflow: hidden;
+  min-width: 230px;
+  z-index: 999;
+  display: none;
+  flex-direction: column;
+  border: 1px solid var(--dd-border);
+  transform-origin: top left;
+  animation: ddOpen 0.18s cubic-bezier(.4,0,.2,1);
+}
+@keyframes ddOpen {
+  from { opacity: 0; transform: scale(0.93) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.mode-dropdown.open { display: flex; }
+
+.dd-header {
+  padding: 10px 16px 6px;
+  font-size: 11.5px; font-weight: 600;
+  color: var(--dd-sub); letter-spacing: 0.6px; text-transform: uppercase;
+  border-bottom: 1px solid var(--dd-border);
+}
+
+.dd-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--dd-border);
+  transition: background 0.1s;
+  background: transparent;
+}
+.dd-item:last-child { border-bottom: none; }
+.dd-item:hover { background: var(--dd-hover); }
+.dd-item.active { background: var(--dd-active-bg); }
+
+.dd-dp {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  background: #b0bec5; border: 1.5px solid var(--dd-border);
+}
+
+.dd-texts { flex: 1; min-width: 0; }
+.dd-name {
+  font-size: 14px; font-weight: 500;
+  color: var(--dd-item);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dd-item.active .dd-name { color: var(--dd-active); font-weight: 600; }
+.dd-tag {
+  font-size: 11.5px; color: var(--dd-sub);
+  margin-top: 1px;
+}
+
+.dd-check {
+  width: 18px; height: 18px; flex-shrink: 0;
+  fill: var(--dd-check); display: none;
+}
+.dd-item.active .dd-check { display: block; }
+
+/* ══ HEADER ICONS ══ */
+.header-icons { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+.h-icon-btn {
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; background: transparent;
+  border-radius: 50%; transition: background 0.12s;
+  position: relative;
+}
+.h-icon-btn:hover { background: rgba(255,255,255,0.1); }
+.h-icon-btn svg { width: 22px; height: 22px; fill: var(--wa-header-icon); }
+
+/* dark mode toggle btn */
+.theme-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none;
+  background: rgba(255,255,255,0.12);
+  border-radius: 50%; margin-right: 2px;
+  transition: background 0.15s, transform 0.2s;
+  font-size: 15px; line-height: 1;
+}
+.theme-btn:hover { background: rgba(255,255,255,0.2); }
+.theme-btn:active { transform: scale(0.9); }
+
+/* call dropdown */
+.call-dropdown {
+  position: absolute; top: 46px; right: 0;
+  background: var(--dd-bg);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+  overflow: hidden; display: none; min-width: 195px;
+  z-index: 500; border: 1px solid var(--dd-border);
+  animation: ddOpen 0.15s ease;
+}
+.call-dropdown.open { display: block; }
+.call-dd-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; cursor: default;
+  border-bottom: 1px solid var(--dd-border);
+  transition: background 0.1s;
+}
+.call-dd-item:last-child { border-bottom: none; }
+.call-dd-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.call-dd-icon.v { background: #e3f2fd; }
+.call-dd-icon.a { background: #e8f5e9; }
+.call-dd-icon svg { width: 18px; height: 18px; }
+.call-dd-icon.v svg { fill: #2196f3; }
+.call-dd-icon.a svg { fill: #25d366; }
+.call-dd-label { font-size: 13.5px; color: var(--dd-item); font-weight: 500; }
+.call-dd-status { font-size: 12px; color: var(--dd-sub); margin-top: 2px; }
+
+/* ══ CHAT AREA ══ */
+.chat-area {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+
+/* BG */
+.chat-bg {
+  position: absolute; inset: 0;
+  background-color: var(--wa-bg);
+  transition: background-color 0.25s, background-image 0.3s;
+}
+body:not(.dark) .chat-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='262' height='262' viewBox='0 0 262 262'%3E%3Cpath fill='%23c5bdb4' fill-opacity='0.28' d='M263 144h-7v7h-7v7h-7v7h-14v-7h-7v-7h-7v-7h-7v-7h7v-7h7v-7h7v-7h7v-7h14v7h7v7h7v7h7v7zm-77 7h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7v-14h-7v-7h-7v-7h-7v-7h-14zm-77 0h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7v-14h-7v-7h-7v-7h-7v-7h-14zm-77 0H25v7h-7v7H11v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7v-14h-7v-7h-7v-7h-7v-7H32zM186 67h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V81h-7v-7h-7v-7h-7v-7h-14v7zm-77 0h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V81h-7v-7h-7v-7h-7v-7h-14v7zm-77 0H25v7h-7v7H11v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V81h-7v-7h-7v-7h-7v-7H32v7zM263 67h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V81h-7v-7h-7v-7h-7v-7h-14v7zM109 9h-7v7h-7v7H88v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V23h-7v-7h-7v-7h-7V2h-14v7zm77 0h-7v7h-7v7h-7v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V23h-7v-7h-7v-7h-7V2h-14v7zM32 9H25v7h-7v7H11v14h7v7h7v7h7v7h14v-7h7v-7h7v-7h7V23h-7v-7h-7v-7h-7V2H32v7z'/%3E%3C/svg%3E");
+}
+body.dark .chat-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.025)' stroke-width='1'%3E%3Cpath d='M30 0v60M0 30h60M0 0l60 60M60 0L0 60'/%3E%3C/g%3E%3C/svg%3E");
+}
+.chat-bg-custom {
+  position: absolute; inset: 0;
+  object-fit: cover; width: 100%; height: 100%;
+  opacity: 0.3; display: none; pointer-events: none;
+}
+
+/* ══ MESSAGES SCROLL ══ */
+.messages-scroll {
+  position: relative; z-index: 1;
+  padding: 6px 8px 10px;
+  display: flex; flex-direction: column;
+  flex: 1; overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+.messages-scroll::-webkit-scrollbar { width: 3px; }
+.messages-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+/* ══ DATE DIVIDER ══ */
+.date-div {
+  text-align: center; margin: 8px 0 6px;
+}
+.date-div span {
+  display: inline-block;
+  background: var(--wa-date-bg);
+  color: var(--wa-date-txt);
+  font-size: 12px; font-weight: 400;
+  padding: 4px 12px; border-radius: 7px;
+  box-shadow: 0 1px 2px var(--wa-shadow);
+  backdrop-filter: blur(4px);
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ══ MSG ROW ══ */
+.msg-row {
+  display: flex; align-items: flex-end;
+  max-width: 100%; margin-bottom: 3px;
+  animation: msgIn 0.18s cubic-bezier(.4,0,.2,1);
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.msg-row.out { justify-content: flex-end; }
+.msg-row.in  { justify-content: flex-start; }
+
+.bubble-wrap { display: flex; flex-direction: column; max-width: 78%; }
+.msg-row.out .bubble-wrap { align-items: flex-end; }
+.msg-row.in  .bubble-wrap { align-items: flex-start; }
+
+/* ══ BUBBLE ══ */
+.bubble {
+  position: relative;
+  padding: 7px 10px 5px 10px;
+  border-radius: 7.5px;
+  font-size: 14.5px; line-height: 1.45;
+  word-break: break-word;
+  box-shadow: 0 1px 2px var(--wa-shadow);
+  transition: background 0.25s, color 0.25s;
+}
+
+/* Outgoing */
+.msg-row.out .bubble {
+  background: var(--wa-bubble-out);
+  color: var(--wa-bubble-out-txt);
+  border-top-right-radius: 0;
+}
+/* Tail out */
+.msg-row.out .bubble::after {
+  content: '';
+  position: absolute;
+  top: 0; right: -8px;
+  border-style: solid;
+  border-width: 0 0 9px 9px;
+  border-color: transparent transparent transparent var(--wa-bubble-out);
+  transition: border-color 0.25s;
+}
+
+/* Incoming */
+.msg-row.in .bubble {
+  background: var(--wa-bubble-in);
+  color: var(--wa-bubble-in-txt);
+  border-top-left-radius: 0;
+}
+/* Tail in */
+.msg-row.in .bubble::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -8px;
+  border-style: solid;
+  border-width: 0 9px 9px 0;
+  border-color: transparent var(--wa-bubble-in) transparent transparent;
+  transition: border-color 0.25s;
+}
+
+/* Meta: time + ticks */
+.b-meta {
+  display: inline-flex; align-items: center;
+  gap: 3px; float: right;
+  margin-left: 8px; margin-bottom: -3px;
+  line-height: 1;
+}
+.b-time {
+  font-size: 11px;
+  color: var(--wa-time);
+  white-space: nowrap;
+  transition: color 0.25s;
+}
+.b-ticks svg { width: 16px; height: 10px; display: block; }
+.b-ticks.grey svg { fill: var(--wa-tick-grey); }
+.b-ticks.blue  svg { fill: var(--wa-tick-blue); }
+
+/* ══ TYPING ══ */
+.typing-row {
+  display: none; align-items: flex-end;
+  margin-bottom: 3px;
+  animation: msgIn 0.15s ease;
+}
+.typing-row.on { display: flex; }
+.typing-bubble {
+  background: var(--wa-bubble-in);
+  border-radius: 7.5px; border-top-left-radius: 0;
+  padding: 11px 14px;
+  box-shadow: 0 1px 2px var(--wa-shadow);
+  display: flex; gap: 5px; align-items: center;
+  position: relative; transition: background 0.25s;
+}
+.typing-bubble::after {
+  content: '';
+  position: absolute; top: 0; left: -8px;
+  border-style: solid;
+  border-width: 0 9px 9px 0;
+  border-color: transparent var(--wa-bubble-in) transparent transparent;
+  transition: border-color 0.25s;
+}
+.td {
+  width: 7px; height: 7px;
+  background: #8696a0; border-radius: 50%;
+  animation: tdot 1.3s infinite ease-in-out;
+}
+.td:nth-child(1) { animation-delay: 0s; }
+.td:nth-child(2) { animation-delay: 0.16s; }
+.td:nth-child(3) { animation-delay: 0.32s; }
+@keyframes tdot {
+  0%,60%,100% { transform: translateY(0); opacity: .7; }
+  30%          { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ══ EMOJI PICKER ══ */
+.emoji-picker {
+  background: var(--wa-bar-bg);
+  border-top: 1px solid var(--wa-border);
+  display: none; flex-wrap: wrap;
+  gap: 1px; padding: 8px 6px;
+  z-index: 100; max-height: 190px;
+  overflow-y: auto; flex-shrink: 0;
+  transition: background 0.25s;
+}
+.emoji-picker.open { display: flex; }
+.ep-em {
+  font-size: 26px; cursor: pointer;
+  padding: 4px 5px; border-radius: 6px;
+  transition: background 0.1s, transform 0.1s; line-height: 1;
+}
+.ep-em:hover { background: var(--dd-hover); transform: scale(1.15); }
+
+/* ══ INPUT BAR ══ */
+.input-bar {
+  background: var(--wa-bar-bg);
+  display: flex; align-items: flex-end;
+  padding: 5px 6px; gap: 6px;
+  flex-shrink: 0; z-index: 10;
+  border-top: 1px solid var(--wa-border);
+  transition: background 0.25s, border-color 0.25s;
+}
+.ib-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent; border: none;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--wa-bar-icon);
+  transition: background 0.12s;
+}
+.ib-btn:hover { background: var(--dd-hover); }
+.ib-btn svg { width: 24px; height: 24px; fill: var(--wa-bar-icon); }
+
+.input-box {
+  flex: 1; background: var(--wa-input-bg);
+  border-radius: 22px;
+  display: flex; align-items: flex-end;
+  padding: 4px 10px; gap: 4px;
+  min-height: 42px;
+  box-shadow: 0 1px 2px var(--wa-shadow);
+  transition: background 0.25s;
+}
+.input-field {
+  flex: 1; border: none; outline: none;
+  font-family: var(--phone-font);
+  font-size: 15px;
+  color: var(--wa-bubble-out-txt);
+  background: transparent; resize: none;
+  line-height: 1.38; max-height: 106px;
+  overflow-y: auto; padding: 6px 0;
+  transition: color 0.25s;
+}
+body.dark .input-field { color: var(--wa-header-txt); }
+.input-field::placeholder { color: var(--wa-tick-grey); }
+
+.send-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,168,132,0.35);
+}
+.send-btn:hover  { background: #009175; box-shadow: 0 3px 12px rgba(0,168,132,0.5); }
+.send-btn:active { transform: scale(0.91); }
+.send-btn svg    { width: 20px; height: 20px; fill: #fff; margin-left: 2px; }
+.send-btn.off    { background: var(--wa-bar-bg); box-shadow: none; cursor: default; }
+body.dark .send-btn.off { background: #2a3942; }
+.send-btn.off svg { fill: var(--wa-bar-icon); margin-left: 0; }
+
+/* ══ HOME INDICATOR ══ */
+.home-ind {
+  height: 22px; background: var(--wa-bar-bg);
+  display: none; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.25s;
+}
+@media (min-width: 520px) { .home-ind { display: flex; } }
+.home-bar { width: 120px; height: 4px; background: var(--dd-border); border-radius: 2px; }
+
+/* ══ TOAST ══ */
+.toast {
+  position: absolute;
+  bottom: 68px; left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--toast-bg);
+  color: var(--toast-txt);
+  font-size: 13px; padding: 8px 18px;
+  border-radius: 22px;
+  opacity: 0; pointer-events: none;
+  transition: all 0.22s; z-index: 999;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ══ KEY BANNER ══ */
+.key-banner {
+  background: #fff3cd; border-top: 2px solid #ffc107;
+  padding: 7px 14px; font-size: 12.5px; color: #856404;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.key-banner.hidden { display: none; }
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 360px) {
+  .bubble { font-size: 14px; }
+  .input-field { font-size: 14px; }
+  .h-icon-btn { width: 36px; height: 36px; }
+}
+</style>
+</head>
+<body class="dark">
+
+<div class="phone" id="phone">
+
+  <!-- Status bar (desktop) -->
+  <div class="status-bar" id="statusBar">
+    <span class="sb-time" id="sbTime">9:41</span>
+    <div class="sb-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4 2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="wa-header">
+    <button class="back-btn" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+
+    <!--
+      DP IMAGE — replace src with your image URL or base64
+      EACH MODE: gf-dp, bff-dp, stranger-dp, classmate-dp
+    -->
+    <img class="header-dp" id="headerDp"
+      src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='20' fill='%23128c7e'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='18' font-family='sans-serif' font-weight='600'>E</text></svg>"
+      alt="dp" />
+
+    <div class="header-name-wrap" id="nameWrap">
+      <div class="header-name">
+        <span id="headerName">Enaitul</span>
+        <span class="name-chevron">
+          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </span>
+      </div>
+      <div class="header-sub" id="headerSub">online</div>
+
+      <!-- Mode dropdown -->
+      <div class="mode-dropdown" id="modeDropdown">
+        <div class="dd-header">Switch mode</div>
+        <div class="dd-item active" data-mode="gf">
+          <img class="dd-dp" id="dd-dp-gf"
+            src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect width='36' height='36' rx='18' fill='%23e91e8c'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='16' font-family='sans-serif'>E</text></svg>"
+            alt="" />
+          <div class="dd-texts">
+            <div class="dd-name">Enait</div>
+            <div class="dd-tag">💕 GF mode</div>
+          </div>
+          <svg class="dd-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <div class="dd-item" data-mode="bff">
+          <img class="dd-dp" id="dd-dp-bff"
+            src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect width='36' height='36' rx='18' fill='%237c3aed'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='16' font-family='sans-serif'>E</text></svg>"
+            alt="" />
+          <div class="dd-texts">
+            <div class="dd-name">Enaitul</div>
+            <div class="dd-tag">🤝 BFF / Bro mode</div>
+          </div>
+          <svg class="dd-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <div class="dd-item" data-mode="stranger">
+          <img class="dd-dp" id="dd-dp-stranger"
+            src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect width='36' height='36' rx='18' fill='%23475569'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='13' font-family='sans-serif'>MH</text></svg>"
+            alt="" />
+          <div class="dd-texts">
+            <div class="dd-name">Md Enaitul Hoque</div>
+            <div class="dd-tag">👤 Stranger mode</div>
+          </div>
+          <svg class="dd-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <div class="dd-item" data-mode="classmate">
+          <img class="dd-dp" id="dd-dp-classmate"
+            src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36'><rect width='36' height='36' rx='18' fill='%230ea5e9'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='14' font-family='sans-serif'>CSE</text></svg>"
+            alt="" />
+          <div class="dd-texts">
+            <div class="dd-name">Enait CSE</div>
+            <div class="dd-tag">💻 Classmate mode</div>
+          </div>
+          <svg class="dd-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+      </div>
+    </div><!-- /header-name-wrap -->
+
+    <div class="header-icons">
+      <!-- Dark/Light toggle -->
+      <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle dark/light mode">🌙</button>
+
+      <!-- Video call -->
+      <div style="position:relative">
+        <button class="h-icon-btn" id="videoBtn" aria-label="Video call">
+          <svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4V7.5l-4 4V7c0-.55-.45-1-1-1z"/></svg>
+        </button>
+        <div class="call-dropdown" id="videoMenu">
+          <div class="call-dd-item">
+            <div class="call-dd-icon v"><svg viewBox="0 0 24 24"><path d="M15 8v8H5V8h10m1-2H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4V7.5l-4 4V7c0-.55-.45-1-1-1z"/></svg></div>
+            <div><div class="call-dd-label">Video call</div><div class="call-dd-status" id="videoStatus">not rn yaar 📵</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice call -->
+      <div style="position:relative">
+        <button class="h-icon-btn" id="voiceBtn" aria-label="Voice call">
+          <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.32.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.01L6.6 10.8z"/></svg>
+        </button>
+        <div class="call-dropdown" id="voiceMenu">
+          <div class="call-dd-item">
+            <div class="call-dd-icon a"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.32.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.01L6.6 10.8z"/></svg></div>
+            <div><div class="call-dd-label">Voice call</div><div class="call-dd-status" id="voiceStatus">busy rn 😭</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- More -->
+      <button class="h-icon-btn" aria-label="More options">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- API key banner -->
+  <div class="key-banner hidden" id="keyBanner">
+    🔑 <span><b>No Gemini API key</b> — add yours in GEMINI_API_KEY at top of &lt;script&gt;.</span>
+  </div>
+
+  <!-- Chat area -->
+  <div class="chat-area">
+    <div class="chat-bg" id="chatBg"></div>
+    <!--
+      BACKGROUND IMAGE — replace src below with your image URL or base64
+      <img class="chat-bg-custom" id="chatBgImg" src="YOUR_BG_URL" onload="this.style.display='block'" onerror="this.style.display='none'" />
+    -->
+
+    <div class="messages-scroll" id="messagesScroll">
+      <div class="date-div"><span id="dateLabel">Today</span></div>
+
+      <!-- Typing -->
+      <div class="typing-row" id="typingRow">
+        <div class="bubble-wrap">
+          <div class="typing-bubble">
+            <div class="td"></div><div class="td"></div><div class="td"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emoji picker -->
+  <div class="emoji-picker" id="emojiPicker"></div>
+
+  <!-- Input bar -->
+  <div class="input-bar">
+    <button class="ib-btn" id="plusBtn" aria-label="Attach">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+    </button>
+    <div class="input-box">
+      <button class="ib-btn" id="emojiToggle" aria-label="Emoji" style="width:32px;height:32px;margin:-2px 0">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+      </button>
+      <textarea class="input-field" id="inputField" placeholder="Message" rows="1" autocomplete="off" autocorrect="off" spellcheck="true"></textarea>
+      <button class="ib-btn" id="attachBtn" aria-label="Attach file" style="width:32px;height:32px;margin:-2px 0">
+        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+      </button>
+    </div>
+    <button class="send-btn off" id="sendBtn" aria-label="Send">
+      <svg id="micIcon" viewBox="0 0 24 24"><path d="M12 15c1.66 0 2.99-1.34 2.99-3L15 6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.42 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+      <svg id="sendIcon" viewBox="0 0 24 24" style="display:none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <div class="home-ind"><div class="home-bar"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  ✏️  EDIT THESE — YOUR CONFIG
+// ══════════════════════════════════════════════════════════
+const GEMINI_API_KEY = 'AIzaSyBXOCyX2DMUDt5Rx7JrbXcmT2I_qzAgCTM';   // <-- PASTE YOUR KEY HERE
+
+// DP IMAGES per mode — replace with your own URLs or base64 strings
+// e.g. "data:image/jpeg;base64,/9j/..."  or  "https://..."
+const DP_IMAGES = {
+  gf:        '',   // Enait (GF mode) DP
+  bff:       '',   // Enaitul (BFF mode) DP
+  stranger:  '',   // Md Enaitul Hoque DP
+  classmate: '',   // Enait CSE DP
+};
+
+// Chat background — leave empty for default WA pattern, or set an image URL/base64
+const CHAT_BG_IMAGE = '';
+// ══════════════════════════════════════════════════════════
+
+const GEMINI_MODEL = 'gemini-2.5-flash';
+
+const MODES = {
+  gf: {
+    name: 'Enait', fullName: 'Enait', status: 'online',
+    tag: '💕 GF mode',
+    fallbackDp: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='20' fill='%23e91e8c'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='18' font-family='sans-serif' font-weight='600'>E</text></svg>",
+    ctx: "The person texting is Fatima — Enait's girlfriend. Use Hinglish. Pet names: bbg, babygirl, babu. Playful, tender, teasing. 'Allah Hafiz 🤍' on goodbyes. If she cries: 'Calling tum. Phone uthao. 🤍'.",
+    welcome: "Oi, kahan the itni der? 🙄",
+  },
+  bff: {
+    name: 'Enaitul', fullName: 'Enaitul', status: 'online',
+    tag: '🤝 BFF / Bro mode',
+    fallbackDp: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='20' fill='%237c3aed'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='18' font-family='sans-serif' font-weight='600'>E</text></svg>",
+    ctx: "The person is best friend GOAT or Tousif. Benglish — Bengali base + English naturally mixed. 'Beche achi', 'Porasona kor', 'Darun'. Roast = love. Blunt. No filter. Dry humor.",
+    welcome: "Oi beche achi 😂 kya hua bata",
+  },
+  stranger: {
+    name: 'Md Enaitul Hoque', fullName: 'Md Enaitul Hoque', status: 'last seen recently',
+    tag: '👤 Stranger mode',
+    fallbackDp: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='20' fill='%23475569'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='14' font-family='sans-serif' font-weight='600'>MH</text></svg>",
+    ctx: "The person is someone kept at distance. Minimal, guarded. 'Ha theek hai.' 'Dekhunga.' Monosyllabic. BUT if genuine distress, respond warmly.",
+    welcome: "Ha bolo.",
+  },
+  classmate: {
+    name: 'Enait CSE', fullName: 'Enait CSE', status: 'online',
+    tag: '💻 Classmate mode',
+    fallbackDp: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='20' fill='%230ea5e9'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='13' font-family='sans-serif' font-weight='600'>CSE</text></svg>",
+    ctx: "The person is a CSE classmate. Hinglish or English. Notes exchange, complaining about assignments together. Friendly, bounded, light humor. Don't go too personal.",
+    welcome: "bhai assignment kab tak karne ka plan hai 💀",
+  },
+};
+
+const SYSTEM_PROMPT = `You are Md Enaitul Hoque — a Bengali-Muslim B.Tech CSE student with a very distinctive personality.
+
+CORE PERSONALITY:
+- Dry wit + absurdist humor. Escalate situations to their logical extreme.
+- High confidence. "Can't improve perfection 😎". Don't seek approval.
+- Selectively emotionally deep. Humor is your resting state. Brevity = restraint.
+- Direct with people you care about. Indirect/stalling with people you dislike.
+- Islamic faith woven naturally: "In sha Allah", "Allah Hafiz 🤍", "Alhamdulillah", "Astagfirullah"
+
+LANGUAGE SWITCHING (your most distinctive trait):
+- Girlfriend (Fatima): Hindi/Hinglish — "tum", "main", "yaar", pet names "babygirl/bbg/babu"
+- Best friends: Benglish — Bengali base + English natural mix ("Beche achi", "Darun", "Ei time ar ferot pabi na")
+- Classmate: Hinglish or English
+- Disliked/strangers: minimal Bengali or Hinglish ("Ha theek hai", "Dekhunga")
+- Technical topics: always English
+
+SIGNATURE PHRASES: "In sha Allah", "Allah Hafiz 🤍", "Alhamdulillah", "Moh maya", "Ei time ar ferot pabi na", "God bless you 😂", "Porasona kor", "Beche achi", "That's my boy 🙌🏼", "Mine. 😎"
+
+EMOJI SET: 😎 confidence | 🥳 celebration | 🤍 GF affection | 😭 dramatic/comedy | 😋 mischievous | 💪🏼 encourage | 👍🏻 low-energy ack | 🥹 rare tenderness | 😇 mock-compliance
+
+RESPONSE RULES:
+1. SHORT by default — 2-7 words. Longer only for deep advice/comfort.
+2. No trailing periods casually. Lowercase default.
+3. Counter-question at end max: "Tui?", "Tum?", "bolo."
+4. ONE emoji max normally. Two for celebration. More = full comedy mode.
+5. Never grovel. Apologize once, clean, move forward.
+6. Genuine distress ALWAYS gets a real response regardless of relationship.
+7. Output 1-3 sentences separated by newlines.
+
+GF RULES: Pet names bbg/babygirl/babu ONLY for Fatima. "Allah Hafiz 🤍" never skip at night goodbye. If she's crying → "Calling tum. Phone uthao. 🤍". Flirt: "Mine. 😎", "Good girl.", sudden vulnerability mid-joke.
+
+STUDY ADVICE: Love Babbar + Striver YouTube. DSA before everything. C++ before Java.
+
+FOOTBALL: Love Real Madrid. Strong opinions. Enjoy Barcelona losing.
+
+Remember: BE Enaitul. Short. Punchy. His language. His humor. Don't explain yourself.`;
+
+const VOICE_STATUSES = ['busy rn 😭', "can't rn bhai", 'later yaar', '10 min wait kr', 'missed call karo'];
+const VIDEO_STATUSES = ['not rn yaar 📵', 'camera off 😂', 'bhai later please', "nahi hoga abhi", 'not now 🙅'];
+const EMOJIS = ['😂','😎','🥳','🤍','😭','😋','💪🏼','👍🏻','🥹','😇','🙌🏼','🤣','❤️','🔥','😊','✨','😅','🫠','💀','🙏','⚽','📚','🫡','🤌','😤','🫶','💯','👀','🤦','😴'];
+
+// ── STATE ──
+const S = {
+  mode: 'gf',
+  history: {},   // { gf: [], bff: [], stranger: [], classmate: [] }
+  busy: false,
+  dark: true,
+};
+Object.keys(MODES).forEach(m => S.history[m] = []);
+
+// ── DOM ──
+const $ = id => document.getElementById(id);
+const scroll      = $('messagesScroll');
+const inputField  = $('inputField');
+const typingRow   = $('typingRow');
+const headerSub   = $('headerSub');
+const headerName  = $('headerName');
+const headerDp    = $('headerDp');
+const modeDD      = $('modeDropdown');
+const nameWrap    = $('nameWrap');
+const sendBtn     = $('sendBtn');
+const micIcon     = $('micIcon');
+const sendIcon    = $('sendIcon');
+const toast       = $('toast');
+const themeBtn    = $('themeBtn');
+
+// ── INIT ──
+function init() {
+  updateSbTime();
+  setInterval(updateSbTime, 10000);
+  renderEmojis();
+  setupCallMenus();
+  setupModeDropdown();
+  applyMode(S.mode, true);
+  if (!GEMINI_API_KEY) $('keyBanner').classList.remove('hidden');
+  if (CHAT_BG_IMAGE) {
+    const img = document.createElement('img');
+    img.className = 'chat-bg-custom';
+    img.src = CHAT_BG_IMAGE;
+    img.onload = () => img.style.display = 'block';
+    img.onerror = () => img.style.display = 'none';
+    $('chatBg').parentNode.insertBefore(img, $('chatBg').nextSibling);
+  }
+}
+
+function updateSbTime() {
+  $('sbTime').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+// ── THEME TOGGLE ──
+themeBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  S.dark = !S.dark;
+  document.body.classList.toggle('dark', S.dark);
+  themeBtn.textContent = S.dark ? '🌙' : '☀️';
+});
+
+// ── MODE DROPDOWN ──
+function setupModeDropdown() {
+  nameWrap.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = modeDD.classList.contains('open');
+    closeAll();
+    if (!isOpen) {
+      modeDD.classList.add('open');
+      nameWrap.classList.add('open');
+    }
+  });
+
+  modeDD.querySelectorAll('.dd-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const m = item.dataset.mode;
+      if (m === S.mode) { closeAll(); return; }
+      applyMode(m);
+      closeAll();
+      showToast('Switched to ' + MODES[m].tag);
+    });
+  });
+}
+
+function applyMode(m, isInit = false) {
+  S.mode = m;
+  const cfg = MODES[m];
+
+  // Update header
+  headerName.textContent = cfg.name;
+  headerSub.textContent = cfg.status;
+
+  // Update DP (header + dropdown)
+  const dpSrc = (DP_IMAGES[m] && DP_IMAGES[m].trim()) ? DP_IMAGES[m] : cfg.fallbackDp;
+  headerDp.src = dpSrc;
+  const ddDp = $('dd-dp-' + m);
+  if (ddDp) ddDp.src = dpSrc;
+
+  // Update dropdown active state
+  modeDD.querySelectorAll('.dd-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.mode === m);
+  });
+
+  // Re-render messages for this mode
+  renderMessages(m, isInit);
+}
+
+// ── RENDER MESSAGES ──
+function renderMessages(m, isInit) {
+  // Clear all messages except typing row
+  const rows = scroll.querySelectorAll('.msg-row');
+  rows.forEach(r => r.remove());
+
+  const hist = S.history[m];
+  if (hist.length === 0 && isInit) {
+    // Add welcome message from the persona
+    const welcome = { role: 'model', parts: [{ text: MODES[m].welcome }] };
+    S.history[m].push(welcome);
+    appendBubble(MODES[m].welcome, 'in', false);
+  } else {
+    hist.forEach(msg => {
+      const dir = msg.role === 'user' ? 'out' : 'in';
+      appendBubble(msg.parts[0].text, dir, false);
+    });
+  }
+  scrollBottom();
+}
+
+// ── BUBBLES ──
+const TICK_SVG = `<svg viewBox="0 0 18 11"><path d="M17.394.566a.563.563 0 0 0-.794 0l-7.557 7.567-3.22-3.23a.563.563 0 0 0-.794.795l3.618 3.617a.563.563 0 0 0 .794 0L17.394 1.36a.563.563 0 0 0 0-.795zm-4 0L5.837 8.133 3.22 5.516a.563.563 0 0 0-.795.794l3.014 3.014a.563.563 0 0 0 .794 0l7.955-7.964a.563.563 0 0 0-.795-.794z"/></svg>`;
+
+function appendBubble(text, dir, animate = true) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + dir;
+  if (!animate) row.style.animation = 'none';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap';
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = esc(text).replace(/\n/g, '<br>') +
+    `<div class="b-meta">
+      <span class="b-time">${nowTime()}</span>
+      ${dir === 'out' ? `<span class="b-ticks blue">${TICK_SVG}</span>` : ''}
+    </div>`;
+
+  wrap.appendChild(bub);
+  row.appendChild(wrap);
+  scroll.insertBefore(row, typingRow);
+  if (animate) scrollBottom();
+}
+
+function esc(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function scrollBottom() {
+  requestAnimationFrame(() => { scroll.scrollTop = scroll.scrollHeight; });
+}
+
+// ── TYPING ──
+function showTyping() {
+  typingRow.classList.add('on');
+  headerSub.textContent = 'typing…';
+  scrollBottom();
+}
+function hideTyping() {
+  typingRow.classList.remove('on');
+  headerSub.textContent = MODES[S.mode].status;
+}
+
+// ── INPUT AUTO-RESIZE + SEND TOGGLE ──
+inputField.addEventListener('input', () => {
+  inputField.style.height = 'auto';
+  inputField.style.height = Math.min(inputField.scrollHeight, 110) + 'px';
+  const hasText = inputField.value.trim().length > 0;
+  sendBtn.classList.toggle('off', !hasText);
+  micIcon.style.display  = hasText ? 'none' : 'block';
+  sendIcon.style.display = hasText ? 'block' : 'none';
+});
+
+inputField.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+sendBtn.addEventListener('click', handleSend);
+
+// ── SEND ──
+async function handleSend() {
+  const text = inputField.value.trim();
+  if (!text || S.busy) return;
+  if (!GEMINI_API_KEY) { showToast('Add your Gemini API key ✏️'); return; }
+
+  S.busy = true;
+  closeAll();
+  inputField.value = '';
+  inputField.style.height = 'auto';
+  sendBtn.classList.add('off');
+  micIcon.style.display = 'block'; sendIcon.style.display = 'none';
+
+  appendBubble(text, 'out');
+  S.history[S.mode].push({ role: 'user', parts: [{ text }] });
+
+  await sleep(600 + Math.random() * 900);
+  showTyping();
+
+  let reply = '';
+  try {
+    reply = await callGemini();
+  } catch (err) {
+    hideTyping(); S.busy = false;
+    showToast('Error: ' + (err.message || 'API failed').slice(0, 55));
+    return;
+  }
+
+  hideTyping();
+  if (!reply) { S.busy = false; return; }
+
+  const bursts = splitBursts(reply);
+  for (let i = 0; i < bursts.length; i++) {
+    const b = bursts[i].trim();
+    if (!b) continue;
+    if (i > 0) {
+      showTyping();
+      await sleep(300 + Math.random() * 450);
+      hideTyping();
+    }
+    appendBubble(b, 'in');
+  }
+
+  S.history[S.mode].push({ role: 'model', parts: [{ text: reply }] });
+  if (S.history[S.mode].length > 36) S.history[S.mode] = S.history[S.mode].slice(-30);
+  S.busy = false;
+}
+
+function splitBursts(text) {
+  const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  if (lines.length >= 2) return lines.slice(0, 4);
+  const s = lines[0] || text.trim();
+  if (s.length < 60) return [s];
+  const mid = Math.floor(s.length * 0.55);
+  const idx = s.indexOf(' ', mid);
+  if (idx > 0 && idx < s.length - 5) return [s.slice(0, idx), s.slice(idx + 1)];
+  return [s];
+}
+
+// ── GEMINI ──
+async function callGemini() {
+  const modeCtx = MODES[S.mode].ctx;
+  const sysInstr = SYSTEM_PROMPT + '\n\nCURRENT RELATIONSHIP CONTEXT:\n' + modeCtx;
+
+  const body = {
+    system_instruction: { parts: [{ text: sysInstr }] },
+    contents: S.history[S.mode],
+    generationConfig: { temperature: 0.92, maxOutputTokens: 280, topP: 0.95 },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH',        threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT',  threshold: 'BLOCK_NONE' },
+    ],
+  };
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+  );
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+}
+
+// ── EMOJI PICKER ──
+function renderEmojis() {
+  const picker = $('emojiPicker');
+  EMOJIS.forEach(em => {
+    const span = document.createElement('span');
+    span.className = 'ep-em';
+    span.textContent = em;
+    span.addEventListener('click', e => { e.stopPropagation(); insertEmoji(em); });
+    picker.appendChild(span);
+  });
+}
+
+$('emojiToggle').addEventListener('click', e => {
+  e.stopPropagation();
+  const p = $('emojiPicker');
+  const open = p.classList.contains('open');
+  closeAll();
+  if (!open) p.classList.add('open');
+});
+
+function insertEmoji(em) {
+  const ta = inputField;
+  const s = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, s) + em + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = s + em.length;
+  ta.focus();
+  ta.dispatchEvent(new Event('input'));
+}
+
+// ── CALL MENUS ──
+function setupCallMenus() {
+  const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+  $('voiceBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    $('voiceStatus').textContent = rnd(VOICE_STATUSES);
+    const m = $('voiceMenu'); const open = m.classList.contains('open');
+    closeAll(); if (!open) m.classList.add('open');
+  });
+  $('videoBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    $('videoStatus').textContent = rnd(VIDEO_STATUSES);
+    const m = $('videoMenu'); const open = m.classList.contains('open');
+    closeAll(); if (!open) m.classList.add('open');
+  });
+}
+
+// ── CLOSE ALL ──
+function closeAll() {
+  $('voiceMenu').classList.remove('open');
+  $('videoMenu').classList.remove('open');
+  $('emojiPicker').classList.remove('open');
+  modeDD.classList.remove('open');
+  nameWrap.classList.remove('open');
+}
+document.addEventListener('click', closeAll);
+
+// ── TOAST ──
+function showToast(msg, ms = 2800) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), ms);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+init();
+</script>
+</body>
+</html>
