@@ -366,6 +366,8 @@ export default function App() {
   const [inputMenuOpen, setInputMenuOpen] = useState(false);
   const [screen, setScreen] = useState<'contacts' | 'chat'>('contacts');
   const [closingCountdown, setClosingCountdown] = useState<number | null>(null);
+  const [zoom, setZoom] = useState<number>(100);
+  const ZOOM_LEVELS = [75, 90, 100, 110, 125, 150];
   const [quotaFarewellMode, setQuotaFarewellMode] = useState<Record<ModeId, { followup: { ok: string; notOk: string; bye: string }; step: 'waitingReply' | 'waitingBye' } | null>>({
     gf: null, bff: null, stranger: null, classmate: null,
   });
@@ -769,11 +771,13 @@ export default function App() {
         className={`h-dvh w-screen overflow-hidden font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text','Helvetica_Neue',Arial,sans-serif] tracking-normal ${
           isLight ? 'bg-[#f0f2f5] text-[#111b21]' : 'bg-[#0b141a] text-[#e9edef]'
         }`}
+
       >
         <div
-          className={`mx-auto flex h-full w-full max-w-[760px] flex-col shadow-2xl md:h-[96dvh] md:max-w-[430px] md:translate-y-[2dvh] md:overflow-hidden md:rounded-[28px] md:ring-1 ${
+          className={`mx-auto flex w-full max-w-[760px] flex-col shadow-2xl md:max-w-[430px] md:overflow-hidden md:rounded-[28px] md:ring-1 ${
             isLight ? 'bg-[#f0f2f5] md:ring-black/10' : 'bg-[#0b141a] md:ring-white/10'
           }`}
+          style={{ zoom: zoom / 100, height: `${100 / (zoom / 100)}dvh`, width: `${100 / (zoom / 100)}vw`, transformOrigin: 'top left' }}
         >
           {/* Contacts Header */}
           <header
@@ -791,6 +795,22 @@ export default function App() {
                 >
                   {isLight ? <Moon className="size-5" strokeWidth={2.1} /> : <Sun className="size-5" strokeWidth={2.1} />}
                 </button>
+                {/* Zoom picker */}
+                <div className="flex items-center gap-0.5 ml-0.5">
+                  <button
+                    onClick={() => { const i = ZOOM_LEVELS.indexOf(zoom); if (i > 0) setZoom(ZOOM_LEVELS[i - 1]); }}
+                    disabled={zoom === ZOOM_LEVELS[0]}
+                    className="grid size-8 place-items-center rounded-full text-white/80 transition hover:bg-white/10 disabled:opacity-30 text-[18px] font-light"
+                    aria-label="Zoom out"
+                  >−</button>
+                  <span className="min-w-[38px] text-center text-[12px] font-semibold text-white/80 tabular-nums">{zoom}%</span>
+                  <button
+                    onClick={() => { const i = ZOOM_LEVELS.indexOf(zoom); if (i < ZOOM_LEVELS.length - 1) setZoom(ZOOM_LEVELS[i + 1]); }}
+                    disabled={zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]}
+                    className="grid size-8 place-items-center rounded-full text-white/80 transition hover:bg-white/10 disabled:opacity-30 text-[18px] font-light"
+                    aria-label="Zoom in"
+                  >+</button>
+                </div>
               </div>
             </div>
 
@@ -924,11 +944,13 @@ export default function App() {
       className={`h-dvh w-screen overflow-hidden font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text','Helvetica_Neue',Arial,sans-serif] tracking-normal ${
         isLight ? 'bg-[#d1d7db] text-[#111b21]' : 'bg-[#0b141a] text-[#e9edef]'
       }`}
+
     >
       <div
-        className={`mx-auto flex h-full w-full max-w-[760px] flex-col shadow-2xl md:h-[96dvh] md:max-w-[430px] md:translate-y-[2dvh] md:overflow-hidden md:rounded-[28px] md:ring-1 ${
+        className={`mx-auto flex w-full max-w-[760px] flex-col shadow-2xl md:max-w-[430px] md:overflow-hidden md:rounded-[28px] md:ring-1 ${
           isLight ? 'bg-[#efeae2] md:ring-black/10' : 'bg-[#0b141a] md:ring-white/10'
         }`}
+        style={{ zoom: zoom / 100, height: `${100 / (zoom / 100)}dvh`, width: `${100 / (zoom / 100)}vw`, transformOrigin: 'top left' }}
       >
         <header
           className={`relative flex h-[64px] shrink-0 items-center gap-2 px-2.5 shadow-[0_1px_0_rgba(0,0,0,0.08)] ${
@@ -1017,6 +1039,23 @@ export default function App() {
                 Send Feedback
               </button>
               <div className="p-4">
+                {/* Zoom control */}
+                <div className="mb-4">
+                  <div className={`mb-2 text-[12px] font-semibold uppercase tracking-[0.08em] ${isLight ? 'text-[#667781]' : 'text-[#8696a0]'}`}>Text size</div>
+                  <div className="flex items-center gap-1.5">
+                    {ZOOM_LEVELS.map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setZoom(level)}
+                        className={`flex-1 rounded-xl py-1.5 text-[12px] font-semibold transition ${
+                          zoom === level
+                            ? 'bg-[#00a884] text-white'
+                            : isLight ? 'bg-[#f0f2f5] text-[#111b21] hover:bg-[#d9dbdd]' : 'bg-[#182229] text-[#e9edef] hover:bg-[#0b141a]'
+                        }`}
+                      >{level}%</button>
+                    ))}
+                  </div>
+                </div>
                 <div className="text-[15px] font-semibold">Credits</div>
                 <div className={`mt-2 text-[13px] leading-relaxed ${isLight ? 'text-[#54656f]' : 'text-[#aebac1]'}`}>
                   &copy; Made by Md Enaitul Hoque | 2026
