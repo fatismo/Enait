@@ -43,6 +43,8 @@ const ENV = (import.meta as ImportMeta & { env?: Record<string, string> }).env ?
 const GEMINI_API_KEY = ENV.VITE_GEMINI_API_KEY || '';
 const GEMINI_API_KEY_2 = ENV.VITE_GEMINI_API_KEY_2 || '';
 const GEMINI_API_KEY_3 = ENV.VITE_GEMINI_API_KEY_3 || '';
+const GEMINI_API_KEY_4 = ENV.VITE_GEMINI_API_KEY_4 || '';
+const GEMINI_API_KEY_5 = ENV.VITE_GEMINI_API_KEY_5 || '';
 const GEMINI_MODEL = ENV.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 const GF_PASSWORD_HASH = 'ec8f080892b11273376db13a4f4d61f8662d0cf95e916ca0cd18b49a0bc300cd';
 
@@ -528,7 +530,7 @@ export default function App() {
 
   async function callAiWithFallback(nextHistory: GeminiMessage[], targetMode: ModeId) {
     // Try each Gemini key in order; move to next on failure
-    const keys = [GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3].filter(Boolean);
+    const keys = [GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3, GEMINI_API_KEY_4, GEMINI_API_KEY_5].filter(Boolean);
 
     if (keys.length === 0) throw new Error('No Gemini API key configured.');
 
