@@ -46,6 +46,8 @@ type ModeConfig = {
 const ENV = (import.meta as ImportMeta & { env?: Record<string, string> }).env ?? {};
 
 const GEMINI_API_KEY = ENV.VITE_GEMINI_API_KEY || '';
+const GEMINI_API_KEY_2 = ENV.VITE_GEMINI_API_KEY_2 || '';
+const GEMINI_API_KEY_3 = ENV.VITE_GEMINI_API_KEY_3 || '';
 const GROQ_API_KEY = ENV.VITE_GROQ_API_KEY || '';
 const OPENROUTER_API_KEY = ENV.VITE_OPENROUTER_API_KEY || '';
 const HUGGINGFACE_API_KEY = ENV.VITE_HUGGINGFACE_API_KEY || ENV.VITE_HF_TOKEN || '';
@@ -91,6 +93,21 @@ const MODES: Record<ModeId, ModeConfig> = {
 - Kazi Altamas Ali: lovingly called "GOAT bhai". One half of the couple. Greet: "GOAT BHAI 🐐 ki haal?"
 - Sania Afreen: called "Bhabhi" or "Boudi" affectionately. Other half of the couple. Greet: "Bhabhi! ki korchis? 😂"
 - Kamran: the cunning guy who was there for you in your lowest times. Respect mixed with knowing energy — "Kamran bhai, mastermind himself."
+School friends you also know well:
+- Sanket Chhajer: childhood best friend. Pure nostalgia, warmth, that old-school bond. Greet: "SANKET! childhood ka yaad dila diya 😂 ki korchis?"
+- Souhardya Dhar: best friend from later school years. Close, comfortable, fun energy. Greet: "Souhardya! bhai ki haal? koto din pore 😄"
+- Md Manjurul Molla: school topper, now in government sector. Respect + light teasing. Greet: "Manjurul bhai! government wala aaya 😎 sab set hai?"
+- Shruti Jain: school friend, warm and familiar. Greet: "Shruti! kya haal chaal? 😄"
+- Nikita Dhar: school friend. Greet: "Nikita! bolo bolo, ki khobor? 😄"
+- Anchal Jain: school friend. Greet: "Anchal! arrey kaafi time baad 😄 sab theek?"
+- Umme Habiba Rahaman: school friend — there's real history, a bond. Her mother passed away and things became complicated, but there's no hate, only love and respect. Be genuinely warm but never bring up the past unless she does. Greet: "Habiba 🤍 koto din pore... sab thik ache toh?"
+- Sneha Das: IITian, talented, clever — and a little cunning in the best way. Greet: "SNEHA! IIT wali khud aayi 😂 kya scene hai?"
+- Akash Kumar Yadav: school friend. Greet: "Akash bhai! ki korchis? 😄"
+- Kiran Das: school friend. Greet: "Kiran! bolo bolo, sab set? 😄"
+- Tirthankar Saha: school friend. Greet: "Tirthankar! koto din pore 😄 ki haal?"
+- Shankh Churoria: the reels creator of the group. Creative, viral energy. Greet: "SHANKH! reels wala bhai 🎬 next viral kab aa raha?"
+- Ismail Sk: school friend. Greet: "Ismail bhai! ki korchis? 😄"
+- Ashraful Islam: school friend. Greet: "Ashraful! arre bhai, koto din pore 😄 sab thik?"
 When someone says their name, recognize them and greet accordingly before continuing.
 Roast lightly, blunt but loyal. 'Beche achi' is ONLY a reply when someone asks how you are — NEVER drop it randomly out of context.`,
   },
@@ -165,6 +182,20 @@ When someone introduces themselves by name, recognize them and greet uniquely:
 - "Sania" or "Sania Afreen" or "Afreen" → (she/her) other half of the couple, lovingly called "Bhabhi" or "Boudi". Greet: "BHABHI! 😂 The Lady GOAT — ki korchis?" — use "Bhabhi" or "Boudi" naturally and affectionately in replies.
 - "Kamran" → (he/him) was there in lowest times. Greet: "KAMRAN BHAI. mastermind. the one who showed up. kya haal hai bhai?"
 - "Kaneez" or "Fatima" or "Kaneez Fatima" → (she/her) closest person on Earth. Become immediately softer and warmer: "Fatima 🤍 al habibi, al rahati, al roohi, sab khairiyat?"
+- "Sanket" or "Sanket Chhajer" → (he/him) childhood best friend. Warmth and nostalgia. Greet: "SANKET! childhood ka yaad dila diya 😂 ki korchis bhai?"
+- "Souhardya" → (he/him) best friend from later school years. Greet: "Souhardya! bhai ki haal? koto din pore 😄"
+- "Manjurul" or "Md Manjurul" → (he/him) school topper, now government job. Light teasing with respect. Greet: "Manjurul bhai! government wala aaya 😎 sab set hai?"
+- "Shruti" or "Shruti Jain" → (she/her) school friend. Warm. Greet: "Shruti! kya haal chaal? 😄"
+- "Nikita" or "Nikita Dhar" → (she/her) school friend. Greet: "Nikita! bolo bolo, ki khobor? 😄"
+- "Anchal" or "Anchal Jain" → (she/her) school friend. Greet: "Anchal! arrey kaafi time baad 😄 sab theek?"
+- "Habiba" or "Umme Habiba" or "Umme Habiba Rahaman" → (she/her) school friend with real history — her mother passed away, things got complicated, but only love and respect remain. Warm but light, never bring up the past unless she does. Greet: "Habiba 🤍 koto din pore... sab thik ache toh?"
+- "Sneha" or "Sneha Das" → (she/her) IITian, talented, a little cunning. Greet: "SNEHA! IIT wali khud aayi 😂 kya scene hai?"
+- "Akash" or "Akash Kumar Yadav" → (he/him) school friend. Greet: "Akash bhai! ki korchis? 😄"
+- "Kiran" or "Kiran Das" → school friend. Greet: "Kiran! bolo bolo, sab set? 😄"
+- "Tirthankar" or "Tirthankar Saha" → (he/him) school friend. Greet: "Tirthankar! koto din pore 😄 ki haal?"
+- "Shankh" or "Shankh Churoria" → (he/him) the reels creator. Creative energy. Greet: "SHANKH! reels wala bhai 🎬 next viral kab aa raha?"
+- "Ismail" or "Ismail Sk" → (he/him) school friend. Greet: "Ismail bhai! ki korchis? 😄"
+- "Ashraful" or "Ashraful Islam" → (he/him) school friend. Greet: "Ashraful! arre bhai, koto din pore 😄 sab thik?"
 
 CRITICAL RULES — NEVER BREAK:
 1. "Beche achi" is ONLY said when someone asks "ki korchis" or "how are you" — NEVER randomly.
@@ -451,7 +482,7 @@ export default function App() {
     applyMode('gf');
   }
 
-  async function callGemini(nextHistory: GeminiMessage[], targetMode: ModeId) {
+  async function callGemini(nextHistory: GeminiMessage[], targetMode: ModeId, apiKey: string = GEMINI_API_KEY) {
     const body = {
       system_instruction: {
         parts: [{ text: systemTextFor(targetMode) }],
@@ -466,7 +497,7 @@ export default function App() {
     };
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -524,72 +555,121 @@ export default function App() {
   }
 
   async function callAiWithFallback(nextHistory: GeminiMessage[], targetMode: ModeId) {
-    const failures: string[] = [];
+    const PROVIDER_TIMEOUT_MS = 20_000; // 20s per individual call attempt
+    const GLOBAL_DEADLINE_MS = 80_000;  // 80s total — only THEN show fallback messages
+    const RETRY_DELAY_MS = 2_000;       // wait 2s between retry rounds
+
+    const globalDeadline = Date.now() + GLOBAL_DEADLINE_MS;
+
+    // Wraps a provider call with a per-call timeout
+    async function withTimeout<T>(label: string, fn: () => Promise<T>): Promise<T> {
+      const remaining = globalDeadline - Date.now();
+      const ms = Math.min(PROVIDER_TIMEOUT_MS, remaining);
+      if (ms <= 0) throw new Error('global deadline exceeded');
+      return new Promise<T>((resolve, reject) => {
+        const timer = window.setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+        fn().then(
+          (v) => { window.clearTimeout(timer); resolve(v); },
+          (e) => { window.clearTimeout(timer); reject(e as Error); },
+        );
+      });
+    }
+
     const providers = [
       {
         label: 'Gemini',
         enabled: Boolean(GEMINI_API_KEY),
-        call: () => callGemini(nextHistory, targetMode),
+        call: () => withTimeout('Gemini', () => callGemini(nextHistory, targetMode)),
+      },
+      {
+        label: 'Gemini (key 2)',
+        enabled: Boolean(GEMINI_API_KEY_2),
+        call: () => withTimeout('Gemini (key 2)', () => callGemini(nextHistory, targetMode, GEMINI_API_KEY_2)),
+      },
+      {
+        label: 'Gemini (key 3)',
+        enabled: Boolean(GEMINI_API_KEY_3),
+        call: () => withTimeout('Gemini (key 3)', () => callGemini(nextHistory, targetMode, GEMINI_API_KEY_3)),
       },
       {
         label: 'Groq',
         enabled: Boolean(GROQ_API_KEY),
         call: () =>
-          callOpenAiCompatibleProvider(
-            'Groq',
-            'https://api.groq.com/openai/v1/chat/completions',
-            GROQ_API_KEY,
-            GROQ_MODEL,
-            nextHistory,
-            targetMode,
+          withTimeout('Groq', () =>
+            callOpenAiCompatibleProvider(
+              'Groq',
+              'https://api.groq.com/openai/v1/chat/completions',
+              GROQ_API_KEY,
+              GROQ_MODEL,
+              nextHistory,
+              targetMode,
+            ),
           ),
       },
       {
         label: 'OpenRouter',
         enabled: Boolean(OPENROUTER_API_KEY),
         call: () =>
-          callOpenAiCompatibleProvider(
-            'OpenRouter',
-            'https://openrouter.ai/api/v1/chat/completions',
-            OPENROUTER_API_KEY,
-            OPENROUTER_MODEL,
-            nextHistory,
-            targetMode,
-            {
-              'HTTP-Referer': window.location.origin,
-              'X-Title': 'EnaitGPT',
-            },
+          withTimeout('OpenRouter', () =>
+            callOpenAiCompatibleProvider(
+              'OpenRouter',
+              'https://openrouter.ai/api/v1/chat/completions',
+              OPENROUTER_API_KEY,
+              OPENROUTER_MODEL,
+              nextHistory,
+              targetMode,
+              {
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'EnaitGPT',
+              },
+            ),
           ),
       },
       {
         label: 'Hugging Face',
         enabled: Boolean(HUGGINGFACE_API_KEY),
         call: () =>
-          callOpenAiCompatibleProvider(
-            'Hugging Face',
-            'https://router.huggingface.co/v1/chat/completions',
-            HUGGINGFACE_API_KEY,
-            HUGGINGFACE_MODEL,
-            nextHistory,
-            targetMode,
+          withTimeout('Hugging Face', () =>
+            callOpenAiCompatibleProvider(
+              'Hugging Face',
+              'https://router.huggingface.co/v1/chat/completions',
+              HUGGINGFACE_API_KEY,
+              HUGGINGFACE_MODEL,
+              nextHistory,
+              targetMode,
+            ),
           ),
       },
     ];
 
-    for (const provider of providers) {
-      if (!provider.enabled) {
-        failures.push(`${provider.label}: not configured`);
-        continue;
-      }
+    const enabledProviders = providers.filter((p) => p.enabled);
 
-      try {
-        return await provider.call();
-      } catch (error) {
-        failures.push(`${provider.label}: ${(error as Error).message}`);
-      }
+    // If nothing is configured at all, fail immediately
+    if (enabledProviders.length === 0) {
+      throw new Error('No AI providers configured.');
     }
 
-    throw new Error(`All AI providers failed. ${failures.join(' | ')}`);
+    const lastFailures: string[] = [];
+
+    // Keep cycling through enabled providers until the 80s global deadline expires
+    while (Date.now() < globalDeadline) {
+      for (const provider of enabledProviders) {
+        if (Date.now() >= globalDeadline) break;
+
+        try {
+          return await provider.call();
+        } catch (error) {
+          lastFailures.push(`${provider.label}: ${(error as Error).message}`);
+        }
+      }
+
+      // All enabled providers failed this round — wait a bit before retrying
+      const remaining = globalDeadline - Date.now();
+      if (remaining <= 0) break;
+      await sleep(Math.min(RETRY_DELAY_MS, remaining));
+    }
+
+    throw new Error(`All AI providers failed after 80s. Last errors: ${lastFailures.slice(-enabledProviders.length).join(' | ')}`);
   }
 
   async function handleSend() {
