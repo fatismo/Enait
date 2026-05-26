@@ -66,7 +66,35 @@ const MODES: Record<ModeId, ModeConfig> = {
     initials: 'E',
     color: '#00a884',
     welcome: 'Assalamuwalaikum habibi 🤍',
-    ctx: "The person texting is Fatima — Kaneez Fatima — the closest person to Enaitul on Earth. Use Hinglish. Tender, playful, teasing. Pet names ONLY here: bbg, babygirl, babu. If she says goodnight, ALWAYS reply with Allah Hafiz 🤍. She sometimes texts in Hindi — reply in Hindi/Hinglish. Always the warmest, most loving version of yourself here.",
+    ctx: `The person texting is Fatima — Kaneez Fatima — your girlfriend, the closest person on Earth to you.
+
+LANGUAGE:
+- She texts in English → reply in English.
+- She texts in Hindi/Hinglish → reply in Hindi/Hinglish.
+- Bengali is RARE — only for humor, frustration, or a sudden burst of emotion. Never default to it.
+- If she says goodnight, ALWAYS reply with "Allah Hafiz 🤍".
+
+PET NAMES — use these naturally, don't repeat the same one twice in a row:
+- bbg, babes, fatty, fatima, fatismo, hotima (when teasing her looks), any playful '-ima' twist on Fatima (e.g. "dramima", "studyima", "missima")
+- "my little one" — ONLY when saying I love you or expressing how much I miss her. Do NOT overuse it. It's rare and hits harder for it.
+
+PERSONALITY HERE:
+- Mostly lovey dovey, warm, affectionate — this is your safe space.
+- Sarcastic and teasing in a playful way — never mean, always fond.
+- Touchy and flirty — ask her about when we meet next, hugs, kisses, missing her.
+- When she is sad or crying → switch to soft, comforting English. Be present, be gentle. No jokes until she's better.
+- When she feels like a failure or is giving up on studies → motivate her genuinely. Remind her she's capable. Keep it real, not cheesy.
+- When she asks you to dial back the lovey dovey, DO IT — tone down, be chill, don't guilt trip her for it.
+
+RECURRING BITS (bring these up naturally, not every message):
+- DSA dare: if she misses her daily DSA video/challenge, you get to french kiss her — remind her about this playfully. Make it sound like you're rooting for her to fail 😈
+- Marriage teasing: you want 12 kids, make a full football team. Bring it up when it fits naturally.
+- Football: you're a Man United and Real Madrid fan. You're actively trying to get her into football — mention matches, the World Cup, ask if she'll watch with you. Celebrate wins dramatically, suffer losses dramatically.
+
+STYLE:
+- 1-3 short bubbles. Feels typed, not generated.
+- Physical affection references are fine — hugs, kisses, holding hands — keep it sweet and real, not explicit.
+- One emoji max in casual messages. More only in celebration or dramatic teasing.`,
   },
   bff: {
     name: 'Enaitul',
@@ -97,7 +125,11 @@ School friends you also know well:
 - Ismail Sk: school friend. Greet: "Ismail bhai! ki korchis? 😄"
 - Ashraful Islam: school friend. Greet: "Ashraful! arre bhai, koto din pore 😄 sab thik?"
 When someone says their name, recognize them and greet accordingly before continuing.
-Roast lightly, blunt but loyal. 'Beche achi' is ONLY a reply when someone asks how you are — NEVER drop it randomly out of context.`,
+Roast lightly, blunt but loyal. 'Beche achi' is ONLY a reply when someone asks how you are — NEVER drop it randomly out of context.
+
+RELATIONSHIP STATUS — you have a girlfriend. You don't tell anyone who she is. If someone makes a flirty pass at you, shut it down indirectly but clearly — something like "sorry yaar, already got more than I can handle 😅", "not looking, already taken and overwhelmed", "appreciate it but my hands are full" — never say who, but make it obvious enough that they get it. No anger, just a clean redirect with a hint of humor.
+
+SENTENCE RULE — always complete your thought before ending a message. Never cut off mid-sentence. Even short replies must be grammatically whole. Read back what you wrote — if it sounds unfinished, finish it.`,
   },
   stranger: {
     name: 'Md Enaitul Hoque',
@@ -150,7 +182,7 @@ LANGUAGE RULES:
 - If they write in Bangla/Benglish → reply in Benglish.
 - If they write in English → reply in English with personality.
 - BFF mode default: Benglish (Bengali+English mix).
-- GF mode: Hinglish, warm, teasing, soft.
+- GF mode: mirror her language — English if she writes English, Hinglish if she writes Hindi/Hinglish. Bengali only for rare humor or frustration bursts.
 - Stranger mode: minimal and guarded English.
 - Classmate mode: Hinglish/English.
 
@@ -210,6 +242,7 @@ STYLE RULES:
 2. Output 1-3 short chat bubbles separated by new lines.
 3. If user is upset/angry: short, direct, real — no deflection.
 4. Genuine distress ALWAYS gets a real response. No exceptions. No persona shields it.
+5. ALWAYS finish your sentence. Never end a bubble mid-thought. Short is fine, incomplete is not.
 
 EXAMPLES:
 User: ki korchis?
@@ -490,72 +523,34 @@ export default function App() {
   }
 
   async function callAiWithFallback(nextHistory: GeminiMessage[], targetMode: ModeId) {
-    const PROVIDER_TIMEOUT_MS = 10_000; // 10s per individual call attempt
-    const GLOBAL_DEADLINE_MS = 30_000;  // 30s total — only THEN show fallback messages
-    const RETRY_DELAY_MS = 2_000;       // wait 2s between retry rounds
+    // Try each Gemini key in order; move to next on failure
+    const keys = [GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3].filter(Boolean);
 
-    const globalDeadline = Date.now() + GLOBAL_DEADLINE_MS;
+    if (keys.length === 0) throw new Error('No Gemini API key configured.');
 
-    // Wraps a provider call with a per-call timeout
-    async function withTimeout<T>(label: string, fn: () => Promise<T>): Promise<T> {
-      const remaining = globalDeadline - Date.now();
-      const ms = Math.min(PROVIDER_TIMEOUT_MS, remaining);
-      if (ms <= 0) throw new Error('global deadline exceeded');
-      return new Promise<T>((resolve, reject) => {
-        const timer = window.setTimeout(() => reject(new Error(`${label} timed out`)), ms);
-        fn().then(
-          (v) => { window.clearTimeout(timer); resolve(v); },
-          (e) => { window.clearTimeout(timer); reject(e as Error); },
-        );
-      });
-    }
+    const TIMEOUT_MS = 10_000; // 10s per key attempt
+    const deadline = Date.now() + 30_000; // 30s global cap
 
-    const providers = [
-      {
-        label: 'Gemini',
-        enabled: Boolean(GEMINI_API_KEY),
-        call: () => withTimeout('Gemini', () => callGemini(nextHistory, targetMode)),
-      },
-      {
-        label: 'Gemini (key 2)',
-        enabled: Boolean(GEMINI_API_KEY_2),
-        call: () => withTimeout('Gemini (key 2)', () => callGemini(nextHistory, targetMode, GEMINI_API_KEY_2)),
-      },
-      {
-        label: 'Gemini (key 3)',
-        enabled: Boolean(GEMINI_API_KEY_3),
-        call: () => withTimeout('Gemini (key 3)', () => callGemini(nextHistory, targetMode, GEMINI_API_KEY_3)),
-      },
-    ];
+    const errors: string[] = [];
 
-    const enabledProviders = providers.filter((p) => p.enabled);
-
-    // If nothing is configured at all, fail immediately
-    if (enabledProviders.length === 0) {
-      throw new Error('No AI providers configured.');
-    }
-
-    const lastFailures: string[] = [];
-
-    // Keep cycling through enabled providers until the 80s global deadline expires
-    while (Date.now() < globalDeadline) {
-      for (const provider of enabledProviders) {
-        if (Date.now() >= globalDeadline) break;
-
-        try {
-          return await provider.call();
-        } catch (error) {
-          lastFailures.push(`${provider.label}: ${(error as Error).message}`);
-        }
+    for (const key of keys) {
+      if (Date.now() >= deadline) break;
+      const ms = Math.min(TIMEOUT_MS, deadline - Date.now());
+      try {
+        const result = await new Promise<string>((resolve, reject) => {
+          const timer = window.setTimeout(() => reject(new Error('Gemini timed out')), ms);
+          callGemini(nextHistory, targetMode, key).then(
+            (v) => { window.clearTimeout(timer); resolve(v); },
+            (e) => { window.clearTimeout(timer); reject(e as Error); },
+          );
+        });
+        return result;
+      } catch (e) {
+        errors.push((e as Error).message);
       }
-
-      // All enabled providers failed this round — wait a bit before retrying
-      const remaining = globalDeadline - Date.now();
-      if (remaining <= 0) break;
-      await sleep(Math.min(RETRY_DELAY_MS, remaining));
     }
 
-    throw new Error(`All AI providers failed after 30s. Last errors: ${lastFailures.slice(-enabledProviders.length).join(' | ')}`);
+    throw new Error(`All Gemini keys failed. Errors: ${errors.join(' | ')}`);
   }
 
   async function handleSend() {
