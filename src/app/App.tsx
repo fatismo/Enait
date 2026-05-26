@@ -30,11 +30,6 @@ type ChatMessage = {
   time: string;
 };
 
-type OpenAiChatMessage = {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-};
-
 type ModeConfig = {
   name: string;
   initials: string;
@@ -48,14 +43,7 @@ const ENV = (import.meta as ImportMeta & { env?: Record<string, string> }).env ?
 const GEMINI_API_KEY = ENV.VITE_GEMINI_API_KEY || '';
 const GEMINI_API_KEY_2 = ENV.VITE_GEMINI_API_KEY_2 || '';
 const GEMINI_API_KEY_3 = ENV.VITE_GEMINI_API_KEY_3 || '';
-const GROQ_API_KEY = ENV.VITE_GROQ_API_KEY || '';
-const OPENROUTER_API_KEY = ENV.VITE_OPENROUTER_API_KEY || '';
-const HUGGINGFACE_API_KEY = ENV.VITE_HUGGINGFACE_API_KEY || ENV.VITE_HF_TOKEN || '';
-
 const GEMINI_MODEL = ENV.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
-const GROQ_MODEL = ENV.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile';
-const OPENROUTER_MODEL = ENV.VITE_OPENROUTER_MODEL || 'google/gemma-3-27b-it:free';
-const HUGGINGFACE_MODEL = ENV.VITE_HUGGINGFACE_MODEL || 'openai/gpt-oss-120b:fastest';
 const GF_PASSWORD_HASH = 'ec8f080892b11273376db13a4f4d61f8662d0cf95e916ca0cd18b49a0bc300cd';
 
 import enaitImg from '../../Images/Enait.png';
@@ -317,21 +305,6 @@ CURRENT RELATIONSHIP CONTEXT:
 ${MODES[mode].ctx}`;
 }
 
-function toOpenAiMessages(systemText: string, history: GeminiMessage[]): OpenAiChatMessage[] {
-  return [
-    { role: 'system', content: systemText },
-    ...history.map((message) => ({
-      role: message.role === 'user' ? ('user' as const) : ('assistant' as const),
-      content: message.parts.map((part) => part.text).join('\n'),
-    })),
-  ];
-}
-
-function readOpenAiText(data: unknown) {
-  const response = data as { choices?: { message?: { content?: string } }[] };
-  return response.choices?.[0]?.message?.content?.trim() || '';
-}
-
 function EmojiPicker({ isLight, onPick }: { isLight: boolean; onPick: (emoji: string) => void }) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
@@ -516,47 +489,9 @@ export default function App() {
     return text;
   }
 
-  async function callOpenAiCompatibleProvider(
-    label: string,
-    endpoint: string,
-    apiKey: string,
-    model: string,
-    nextHistory: GeminiMessage[],
-    targetMode: ModeId,
-    extraHeaders: Record<string, string> = {},
-  ) {
-    if (!apiKey) throw new Error(`${label} key missing`);
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-        ...extraHeaders,
-      },
-      body: JSON.stringify({
-        model,
-        messages: toOpenAiMessages(systemTextFor(targetMode), nextHistory),
-        temperature: 0.92,
-        max_tokens: 280,
-        stream: false,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error?.error?.message || `${label} HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
-    const text = readOpenAiText(data);
-    if (!text) throw new Error(`${label} returned empty response`);
-    return text;
-  }
-
   async function callAiWithFallback(nextHistory: GeminiMessage[], targetMode: ModeId) {
-    const PROVIDER_TIMEOUT_MS = 20_000; // 20s per individual call attempt
-    const GLOBAL_DEADLINE_MS = 80_000;  // 80s total — only THEN show fallback messages
+    const PROVIDER_TIMEOUT_MS = 10_000; // 10s per individual call attempt
+    const GLOBAL_DEADLINE_MS = 30_000;  // 30s total — only THEN show fallback messages
     const RETRY_DELAY_MS = 2_000;       // wait 2s between retry rounds
 
     const globalDeadline = Date.now() + GLOBAL_DEADLINE_MS;
@@ -591,55 +526,6 @@ export default function App() {
         enabled: Boolean(GEMINI_API_KEY_3),
         call: () => withTimeout('Gemini (key 3)', () => callGemini(nextHistory, targetMode, GEMINI_API_KEY_3)),
       },
-      {
-        label: 'Groq',
-        enabled: Boolean(GROQ_API_KEY),
-        call: () =>
-          withTimeout('Groq', () =>
-            callOpenAiCompatibleProvider(
-              'Groq',
-              'https://api.groq.com/openai/v1/chat/completions',
-              GROQ_API_KEY,
-              GROQ_MODEL,
-              nextHistory,
-              targetMode,
-            ),
-          ),
-      },
-      {
-        label: 'OpenRouter',
-        enabled: Boolean(OPENROUTER_API_KEY),
-        call: () =>
-          withTimeout('OpenRouter', () =>
-            callOpenAiCompatibleProvider(
-              'OpenRouter',
-              'https://openrouter.ai/api/v1/chat/completions',
-              OPENROUTER_API_KEY,
-              OPENROUTER_MODEL,
-              nextHistory,
-              targetMode,
-              {
-                'HTTP-Referer': window.location.origin,
-                'X-Title': 'EnaitGPT',
-              },
-            ),
-          ),
-      },
-      {
-        label: 'Hugging Face',
-        enabled: Boolean(HUGGINGFACE_API_KEY),
-        call: () =>
-          withTimeout('Hugging Face', () =>
-            callOpenAiCompatibleProvider(
-              'Hugging Face',
-              'https://router.huggingface.co/v1/chat/completions',
-              HUGGINGFACE_API_KEY,
-              HUGGINGFACE_MODEL,
-              nextHistory,
-              targetMode,
-            ),
-          ),
-      },
     ];
 
     const enabledProviders = providers.filter((p) => p.enabled);
@@ -669,7 +555,7 @@ export default function App() {
       await sleep(Math.min(RETRY_DELAY_MS, remaining));
     }
 
-    throw new Error(`All AI providers failed after 80s. Last errors: ${lastFailures.slice(-enabledProviders.length).join(' | ')}`);
+    throw new Error(`All AI providers failed after 30s. Last errors: ${lastFailures.slice(-enabledProviders.length).join(' | ')}`);
   }
 
   async function handleSend() {
