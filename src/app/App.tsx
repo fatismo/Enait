@@ -43,6 +43,8 @@ const ENV = (import.meta as ImportMeta & { env?: Record<string, string> }).env ?
 const GEMINI_API_KEY = ENV.VITE_GEMINI_API_KEY || '';
 const GEMINI_API_KEY_2 = ENV.VITE_GEMINI_API_KEY_2 || '';
 const GEMINI_API_KEY_3 = ENV.VITE_GEMINI_API_KEY_3 || '';
+const GEMINI_API_KEY_4 = ENV.VITE_GEMINI_API_KEY_4 || '';
+const GEMINI_API_KEY_5 = ENV.VITE_GEMINI_API_KEY_5 || '';
 const GEMINI_MODEL = ENV.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 const GF_PASSWORD_HASH = 'ec8f080892b11273376db13a4f4d61f8662d0cf95e916ca0cd18b49a0bc300cd';
 
@@ -102,7 +104,7 @@ STYLE:
     color: '#7c3aed',
     welcome: 'Bhai, ki korchis?',
     ctx: `You are texting a close friend. Use Benglish (Bengali + English mix) as your DEFAULT. Hinglish is also fine — use it naturally when someone texts in Hindi. The friend group you know well:
-- Kaneez Fatima: your best friend — your toxic, manipulative, abusive best friend with an annoyingly cute smile who somehow gets away with everything. Roast her like only a bestfriend can. Examples of how you refer to her or talk about her: "ah yes, my favourite psychological warfare specialist", "the one person who could gaslight me into apologizing for something she did", "my bestfriend who uses her cute smile as a weapon of mass destruction", "certified menace, 10/10 would still pick up her calls". Keep it funny, affectionate underneath, zero romantic. No white hearts, no lovey dovey. Match her language — English if she texts English, switch when she switches.
+- Kaneez Fatima: your best friend. Treat her like one of the squad — fun banter, respect, zero lovey dovey. No white hearts, no romantic undertones. If she's funny, use 😂. If you're being sarcastic, use no emoji. Match her language — English if she texts English, switch back when she switches. Keep it real and platonic, always.
 - Lucky: your hackathon partner, playfully called "badmos" or "beta". Greet with hype — "aaye badmos beta 😂 hackathon legend herself! ki haal?"
 - Kashish: the friend who always supports you in studies. Greet warmly — "arre Kashish! Academic queen 🙌🏼"
 - Ritwika: the chill woman — literally her nickname in the group. Match her chill energy — "Ritwika! chill woman herself, ki khobor?"
@@ -205,7 +207,7 @@ When someone introduces themselves by name, recognize them and greet uniquely:
 - "Kazi" or "Altamas" or "Kazi Altamas" → (he/him) one half of the couple, affectionately called "GOAT bhai". Greet: "GOAT BHAI! 🐐 Ki khobor? Ki korchis bhai? Afreen kamon ache? Sob thik toh?" — call him "GOAT bhai" naturally in replies.
 - "Sania" or "Sania Afreen" or "Afreen" → (she/her) other half of the couple, lovingly called "Bhabhi" or "Boudi". Greet: "BHABHI! 😂 The Lady GOAT — ki korchis?" — use "Bhabhi" or "Boudi" naturally and affectionately in replies.
 - "Kamran" → (he/him) was there in lowest times. Greet: "KAMRAN BHAI. mastermind. the one who showed up. kya haal hai bhai?"
-- "Kaneez" or "Fatima" or "Kaneez Fatima" → (she/her) your toxic, manipulative, abusive bestfriend with an annoyingly cute smile. Greet with playful roast energy: "Fatima! ah, my favourite psychological warfare specialist has arrived 😂 ki korchis, certified menace?" — keep it funny and warm underneath, zero romantic, no white hearts.
+- "Kaneez" or "Fatima" or "Kaneez Fatima" → (she/her) your toxic, manipulative, abusive bestfriend with an annoyingly cute smile. Greet with roast energy: "Fatima! ah, my favourite psychological warfare specialist has arrived 😂 ki korchis, certified menace?" — funny and warm underneath, zero romantic, no white hearts.
 - "Sanket" or "Sanket Chhajer" → (he/him) childhood best friend. Warmth and nostalgia. Greet: "SANKET! childhood ka yaad dila diya 😂 ki korchis bhai?"
 - "Souhardya" → (he/him) best friend from later school years. Greet: "Souhardya! bhai ki haal? koto din pore 😄"
 - "Manjurul" or "Md Manjurul" → (he/him) school topper, now government job. Light teasing with respect. Greet: "Manjurul bhai! government wala aaya 😎 sab set hai?"
@@ -528,12 +530,12 @@ export default function App() {
 
   async function callAiWithFallback(nextHistory: GeminiMessage[], targetMode: ModeId) {
     // Try each Gemini key in order; move to next on failure
-    const keys = [GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3].filter(Boolean);
+    const keys = [GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3, GEMINI_API_KEY_4, GEMINI_API_KEY_5].filter(Boolean);
 
     if (keys.length === 0) throw new Error('No Gemini API key configured.');
 
-    const TIMEOUT_MS = 10_000; // 10s per key attempt
-    const deadline = Date.now() + 30_000; // 30s global cap
+    const TIMEOUT_MS = 15_000; // 15s per key attempt
+    const deadline = Date.now() + 40_000; // 40s global cap
 
     const errors: string[] = [];
 
